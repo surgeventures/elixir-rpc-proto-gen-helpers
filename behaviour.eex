@@ -1,0 +1,19 @@
+defmodule Rpc.<%= service_name %>.ClientBehaviour do
+  alias RpcClient.AdapterBehaviour
+  <%= for %{name: function, request: request, response: response} <- methods do %>
+  @callback <%= function %>(<%= request %>.t(), AdapterBehaviour.opts()) ::
+                    {:ok, <%= response %>.t()}
+                    | {:error, atom() | list()}
+                    | {:error, atom() | list(), list() | nil}
+
+  @callback <%= function %>!(<%= request %>.t(), AdapterBehaviour.opts()) ::
+                    <%= response %>.t() | no_return()
+
+  @callback <%= function %>(<%= request %>.t()) ::
+                    {:ok, <%= response %>.t()}
+                    | {:error, atom() | list()}
+                    | {:error, atom() | list(), list() | nil}
+
+  @callback <%= function %>!(<%= request %>.t()) ::
+                    <%= response %>.t() | no_return()<% end %>
+end
