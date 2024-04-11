@@ -55,7 +55,7 @@ defmodule RPCProtoGenHelpers.CLI do
       |> Enum.filter(&rpc_service?/1)
       |> Enum.map(&build_service_metadata/1)
       |> Enum.flat_map(fn service ->
-        service_name_to_pascal = Recase.to_pascal(service.service_name)
+        service_name_to_pascal = to_pascal(service.service_name)
         behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, service.methods)
         impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, service.methods)
 
@@ -172,6 +172,18 @@ defmodule RPCProtoGenHelpers.CLI do
   defp extract_response(%{output_type: "." <> res}), do: dotted_path_to_pascal(res)
 
   defp dotted_path_to_pascal(str) do
-    str |> String.split(".") |> Enum.map_join(".", &Recase.to_pascal/1)
+    str |> String.split(".") |> Enum.map_join(".", &to_pascal/1)
+  end
+
+  @string_transforms %{"B2c" => "B2C"}
+
+  defp apply_string_transforms(initial_str) do
+    Enum.reduce(@string_transforms, initial_str, fn {source_pattern, target_pattern}, str ->
+      String.replace(str, source_pattern, target_pattern)
+    end)
+  end
+
+  defp to_pascal(str) do
+    str |> Recase.to_pascal() |> apply_string_transforms()
   end
 end
