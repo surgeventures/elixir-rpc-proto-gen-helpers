@@ -52,8 +52,11 @@ defmodule RPCProtoGenHelpers.CLI do
 
     files =
       request.proto_file
-      |> Enum.filter(&rpc_service?/1)
-      |> Enum.map(&build_service_metadata/1)
+      |> Stream.filter(&rpc_service?/1)
+      |> Stream.filter(fn file_descriptor_proto ->
+        Regex.match?(~r|^rpc\.(\w+)\.v(\d+)$|, file_descriptor_proto.package)
+      end)
+      |> Stream.map(&build_service_metadata/1)
       |> Enum.flat_map(fn service ->
         service_name_to_pascal = Recase.to_pascal(service.service_name)
         behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, service.methods)
