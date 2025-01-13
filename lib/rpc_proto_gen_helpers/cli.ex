@@ -106,6 +106,7 @@ defmodule RPCProtoGenHelpers.CLI do
     service_name_to_pascal = Recase.to_pascal(service_name)
     package_to_pascal = package |> String.split(".") |> Enum.map_join(".", &Recase.to_pascal/1)
 
+    # Note that these inconsistent naming conventions will be addressed soon.
     stub =
       if legacy_name? do
         "#{package_to_pascal}.RPCService.Stub"

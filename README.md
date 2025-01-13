@@ -13,17 +13,37 @@ which protoc-gen-elixir-rpc || PATH="~/.mix/escripts:$PATH" && mix escript.insta
 Then you can use the plugin for [`buf generate`](https://buf.build/docs/reference/cli/buf/generate). An example `buf` config file might be:
 
 ```yaml
-version: v1
+version: v2
 plugins:
-  - name: elixir
+  - local: protoc-gen-elixir
     strategy: all
     out: ./lib/generated
     opt: plugins=grpc
-  - name: elixir-rpc
+  - local: protoc-gen-elixir-rpc
     strategy: all
     out: ./lib/generated
     opt: plugins=grpc
 ```
+
+To visualise the metadata structure that is parsed, see `buf.example.json`.
+
+To generate such a file run `buf build --output export.json`.
+
+## Testing
+
+This plugin is tested with integration tests which call `buf generate`.
+
+If you want to run tests, make sure you have `buf` installed at version `1.40` or greater.
+
+Running tests assumes that certain executables are in your `PATH`:
+
+```bash
+PATH="~/.mix/escripts:$PATH" && \
+mix escript.install --force hex protobuf 0.7.1 && \
+mix escript.build && mix escript.install --force protoc-gen-elixir-rpc
+```
+
+Every time you change the CLI code, you must run `mix escript.build && mix escript.install --force protoc-gen-elixir-rpc`.
 
 ## Installation
 
@@ -41,4 +61,3 @@ end
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/rpc_proto_gen_helpers>.
-
