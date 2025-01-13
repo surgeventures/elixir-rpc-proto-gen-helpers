@@ -70,11 +70,11 @@ defmodule RPCProtoGenHelpers.CLI do
       |> Enum.flat_map(fn metadata ->
         [
           Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
-            name: metadata.behaviour_file_name,
+            name: metadata.behaviour_path,
             content: metadata.behaviour_module
           ),
           Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
-            name: metadata.impl_file_name,
+            name: metadata.impl_path,
             content: metadata.impl_module
           )
         ]
@@ -104,9 +104,9 @@ defmodule RPCProtoGenHelpers.CLI do
        }) do
     service_name = name |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
     service_name_to_pascal = Recase.to_pascal(service_name)
-    package_to_pascal = package |> String.split(".") |> Enum.map_join(".", &Recase.to_pascal/1)
+    package_components = package |> String.split(".")
+    package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
 
-    # Note that these inconsistent naming conventions will be addressed soon.
     stub =
       if legacy_name? do
         "#{package_to_pascal}.RPCService.Stub"
@@ -131,13 +131,13 @@ defmodule RPCProtoGenHelpers.CLI do
     behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, methods)
     impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, stub, methods)
 
-    behaviour_file_name = "#{service_name}_rpc_behaviour.ex"
-    impl_file_name = "#{service_name}_rpc_impl.ex"
+    behaviour_path = Path.join(package_components ++ ["#{service_name}_client_behaviour.ex"])
+    impl_path = Path.join(package_components ++ ["#{service_name}_client_impl.ex"])
 
     %{
-      behaviour_file_name: behaviour_file_name,
+      behaviour_path: behaviour_path,
       behaviour_module: behaviour_module,
-      impl_file_name: impl_file_name,
+      impl_path: impl_path,
       impl_module: impl_module
     }
   end
@@ -158,7 +158,7 @@ defmodule RPCProtoGenHelpers.CLI do
            # https://groups.google.com/g/protobuf/c/AyOQvhtwvYc?pli=1 and
            # https://github.com/protocolbuffers/protobuf/blob/5b32936822e64b796fa18fcff53df2305c6b7686/src/google/protobuf/descriptor.proto#L1125
            # for more explanation
-           path: path = [_|_],
+           path: path = [_ | _],
            leading_comments: leading_comment,
            trailing_comments: nil
          },
@@ -170,7 +170,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
   defp extract_comment(
          %Google.Protobuf.SourceCodeInfo.Location{
-           path: path = [_|_],
+           path: path = [_ | _],
            leading_comments: nil,
            trailing_comments: trailing_comment
          },

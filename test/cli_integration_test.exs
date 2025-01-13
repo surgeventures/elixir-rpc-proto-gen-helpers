@@ -58,7 +58,10 @@ defmodule RPCProtoGenHelpers.CLITest do
       end
       """
 
-      assert_content_matches_file(expected_impl, "#{tmp_dir}/generated/gift_cards_rpc_impl.ex")
+      assert_content_matches_file(
+        expected_impl,
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_impl.ex"
+      )
 
       expected_behaviour = ~S"""
       defmodule Rpc.GiftCards.ClientBehaviour do
@@ -86,7 +89,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/gift_cards_rpc_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_behaviour.ex"
       )
     end
 
@@ -160,7 +163,10 @@ defmodule RPCProtoGenHelpers.CLITest do
       end
       """
 
-      assert_content_matches_file(expected_impl, "#{tmp_dir}/generated/gift_cards_rpc_impl.ex")
+      assert_content_matches_file(
+        expected_impl,
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_impl.ex"
+      )
 
       expected_behaviour = ~S"""
       defmodule Rpc.GiftCards.ClientBehaviour do
@@ -188,7 +194,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/gift_cards_rpc_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_behaviour.ex"
       )
     end
 
@@ -274,7 +280,10 @@ defmodule RPCProtoGenHelpers.CLITest do
       end
       """
 
-      assert_content_matches_file(expected_impl, "#{tmp_dir}/generated/gift_cards_rpc_impl.ex")
+      assert_content_matches_file(
+        expected_impl,
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_impl.ex"
+      )
 
       expected_behaviour = ~S"""
       defmodule Rpc.GiftCards.ClientBehaviour do
@@ -302,7 +311,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/gift_cards_rpc_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_client_behaviour.ex"
       )
     end
 
@@ -358,7 +367,10 @@ defmodule RPCProtoGenHelpers.CLITest do
       end
       """
 
-      assert_content_matches_file(expected_impl, "#{tmp_dir}/generated/partners_auth_rpc_impl.ex")
+      assert_content_matches_file(
+        expected_impl,
+        "#{tmp_dir}/generated/fresha/auth/protobuf/rpc/partners/v1/partners_auth_client_impl.ex"
+      )
 
       expected_behaviour = ~S"""
       defmodule Rpc.PartnersAuth.ClientBehaviour do
@@ -386,7 +398,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/partners_auth_rpc_behaviour.ex"
+        "#{tmp_dir}/generated/fresha/auth/protobuf/rpc/partners/v1/partners_auth_client_behaviour.ex"
       )
     end
   end
