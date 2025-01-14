@@ -199,7 +199,6 @@ defmodule RPCProtoGenHelpers.CLITest do
     end
 
     test "injects multi-line comments into docs", %{tmp_dir: tmp_dir} do
-      IO.inspect(tmp_dir)
       rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
       File.mkdir_p!(rpc_path)
 
