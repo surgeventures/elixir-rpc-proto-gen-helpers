@@ -54,18 +54,6 @@ defmodule RPCProtoGenHelpers.CLI do
     files =
       request.proto_file
       |> Stream.filter(&rpc_service?/1)
-      |> Stream.map(fn file_descriptor_proto ->
-        %{
-          file_descriptor_proto: file_descriptor_proto,
-          legacy_name?: Regex.match?(~r|^rpc\.(\w+)\.v(\d+)$|, file_descriptor_proto.package)
-        }
-      end)
-      |> Stream.filter(fn %{
-                            file_descriptor_proto: file_descriptor_proto,
-                            legacy_name?: legacy_name?
-                          } ->
-        legacy_name? or Regex.match?(~r|^fresha.*|, file_descriptor_proto.package)
-      end)
       |> Stream.map(&build_service_metadata/1)
       |> Enum.flat_map(fn metadata ->
         [
@@ -89,30 +77,21 @@ defmodule RPCProtoGenHelpers.CLI do
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [_]}), do: true
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: []}), do: false
 
-  defp build_service_metadata(%{
-         file_descriptor_proto: %Google.Protobuf.FileDescriptorProto{
-           name: name,
-           package: package,
-           service: [
-             %Google.Protobuf.ServiceDescriptorProto{method: methods}
-           ],
-           source_code_info: %Google.Protobuf.SourceCodeInfo{
-             location: source_code_locations
-           }
-         },
-         legacy_name?: legacy_name?
+  defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
+         name: name,
+         package: package,
+         service: [
+           %Google.Protobuf.ServiceDescriptorProto{method: methods}
+         ],
+         source_code_info: %Google.Protobuf.SourceCodeInfo{
+           location: source_code_locations
+         }
        }) do
     service_name = name |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
     service_name_to_pascal = Recase.to_pascal(service_name)
     package_components = package |> String.split(".")
     package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
-
-    stub =
-      if legacy_name? do
-        "#{package_to_pascal}.RPCService.Stub"
-      else
-        "#{package_to_pascal}.#{service_name_to_pascal}Service.Stub"
-      end
+    stub = "#{package_to_pascal}.RPCService.Stub"
 
     comment_map = extract_comments(source_code_locations)
 
