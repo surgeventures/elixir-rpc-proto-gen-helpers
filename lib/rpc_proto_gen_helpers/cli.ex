@@ -157,27 +157,32 @@ defmodule RPCProtoGenHelpers.CLI do
            # This path extraction might seem arbitrary, but see
            # https://groups.google.com/g/protobuf/c/AyOQvhtwvYc?pli=1 and
            # https://github.com/protocolbuffers/protobuf/blob/5b32936822e64b796fa18fcff53df2305c6b7686/src/google/protobuf/descriptor.proto#L1125
-           # for more explanation
-           path: path = [_ | _],
+           # for more explanation. The TL;DR is:
+           # 6 - service field
+           # 0 - first service (i.e. RPCService)
+           # 2 - method field
+           # index - the index of that method
+           # This means we only extract comments before each method, and not for imports etc.
+           path: [6, 0, 2, method_index],
            leading_comments: leading_comment,
            trailing_comments: nil
          },
          comments
        )
        when is_binary(leading_comment) do
-    add_comment(comments, List.last(path), leading_comment)
+    add_comment(comments, method_index, leading_comment)
   end
 
   defp extract_comment(
          %Google.Protobuf.SourceCodeInfo.Location{
-           path: path = [_ | _],
+           path: [6, 0, 2, method_index],
            leading_comments: nil,
            trailing_comments: trailing_comment
          },
          comments
        )
        when is_binary(trailing_comment) do
-    add_comment(comments, List.last(path), trailing_comment)
+    add_comment(comments, method_index, trailing_comment)
   end
 
   defp extract_comment(%Google.Protobuf.SourceCodeInfo.Location{}, comments) do

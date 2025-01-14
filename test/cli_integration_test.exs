@@ -199,6 +199,7 @@ defmodule RPCProtoGenHelpers.CLITest do
     end
 
     test "injects multi-line comments into docs", %{tmp_dir: tmp_dir} do
+      IO.inspect(tmp_dir)
       rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
       File.mkdir_p!(rpc_path)
 
@@ -214,10 +215,6 @@ defmodule RPCProtoGenHelpers.CLITest do
         * I am a
         * multi-line
         *
-        * comment
-        */
-        /*
-        * I am another
         * comment
         */
         rpc InitialiseGiftCard(rpc.gift_cards.v1.InitialiseGiftCardRequest) returns (rpc.gift_cards.v1.InitialiseGiftCardResponse);
@@ -256,9 +253,6 @@ defmodule RPCProtoGenHelpers.CLITest do
         multi-line
 
         comment
-
-        I am another
-        comment
         \"\"\"#{" "}
         def initialise_gift_card(request, opts \\\\ []) do
           call(request, :initialise_gift_card, opts)
@@ -269,9 +263,6 @@ defmodule RPCProtoGenHelpers.CLITest do
         I am a
         multi-line
 
-        comment
-
-        I am another
         comment
         \"\"\"#{" "}
         def initialise_gift_card!(request, opts \\\\ []) do
