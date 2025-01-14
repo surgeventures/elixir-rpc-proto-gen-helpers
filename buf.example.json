@@ -1,0 +1,77 @@
+{
+  "file": [
+    {
+      "name": "rpc/gift_cards/v1/initialise_gift_card.proto",
+      "package": "rpc.gift_cards.v1",
+      "messageType": [
+        { "name": "InitialiseGiftCardRequest" },
+        {
+          "name": "InitialiseGiftCardResponse",
+          "field": [
+            {
+              "name": "id",
+              "number": 1,
+              "label": "LABEL_OPTIONAL",
+              "type": "TYPE_INT32",
+              "jsonName": "id"
+            }
+          ]
+        }
+      ],
+      "sourceCodeInfo": {
+        "location": [
+          { "span": [0, 0, 8, 1] },
+          { "path": [12], "span": [0, 0, 18] },
+          { "path": [2], "span": [2, 0, 26] },
+          { "path": [4, 0], "span": [4, 0, 36] },
+          { "path": [4, 0, 1], "span": [4, 8, 33] },
+          { "path": [4, 1], "span": [6, 0, 8, 1] },
+          { "path": [4, 1, 1], "span": [6, 8, 34] },
+          { "path": [4, 1, 2, 0], "span": [7, 2, 15] },
+          { "path": [4, 1, 2, 0, 5], "span": [7, 2, 7] },
+          { "path": [4, 1, 2, 0, 1], "span": [7, 8, 10] },
+          { "path": [4, 1, 2, 0, 3], "span": [7, 13, 14] }
+        ]
+      },
+      "syntax": "proto3",
+      "bufExtension": { "isImport": false, "isSyntaxUnspecified": false }
+    },
+    {
+      "name": "rpc/gift_cards/v1/gift_cards_service.proto",
+      "package": "rpc.gift_cards.v1",
+      "dependency": ["rpc/gift_cards/v1/initialise_gift_card.proto"],
+      "service": [
+        {
+          "name": "RPCService",
+          "method": [
+            {
+              "name": "InitialiseGiftCard",
+              "inputType": ".rpc.gift_cards.v1.InitialiseGiftCardRequest",
+              "outputType": ".rpc.gift_cards.v1.InitialiseGiftCardResponse"
+            }
+          ]
+        }
+      ],
+      "sourceCodeInfo": {
+        "location": [
+          { "span": [0, 0, 14, 1] },
+          { "path": [12], "span": [0, 0, 18] },
+          { "path": [2], "span": [2, 0, 26] },
+          { "path": [3, 0], "span": [4, 0, 54] },
+          { "path": [6, 0], "span": [6, 0, 14, 1] },
+          { "path": [6, 0, 1], "span": [6, 8, 18] },
+          {
+            "path": [6, 0, 2, 0],
+            "span": [13, 2, 125],
+            "leadingComments": "\n I am a\n multi-line\n\n comment\n"
+          },
+          { "path": [6, 0, 2, 0, 1], "span": [13, 6, 24] },
+          { "path": [6, 0, 2, 0, 2], "span": [13, 25, 68] },
+          { "path": [6, 0, 2, 0, 3], "span": [13, 79, 123] }
+        ]
+      },
+      "syntax": "proto3",
+      "bufExtension": { "isImport": false, "isSyntaxUnspecified": false }
+    }
+  ]
+}

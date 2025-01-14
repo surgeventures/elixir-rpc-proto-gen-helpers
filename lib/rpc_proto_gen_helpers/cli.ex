@@ -13,6 +13,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
     EEx.function_from_file(:def, :rpc_client_impl, "impl.eex", [
       :service_name,
+      :stub,
       :methods
     ])
   end
@@ -53,23 +54,28 @@ defmodule RPCProtoGenHelpers.CLI do
     files =
       request.proto_file
       |> Stream.filter(&rpc_service?/1)
-      |> Stream.filter(fn file_descriptor_proto ->
-        Regex.match?(~r|^rpc\.(\w+)\.v(\d+)$|, file_descriptor_proto.package)
+      |> Stream.map(fn file_descriptor_proto ->
+        %{
+          file_descriptor_proto: file_descriptor_proto,
+          legacy_name?: Regex.match?(~r|^rpc\.(\w+)\.v(\d+)$|, file_descriptor_proto.package)
+        }
+      end)
+      |> Stream.filter(fn %{
+                            file_descriptor_proto: file_descriptor_proto,
+                            legacy_name?: legacy_name?
+                          } ->
+        legacy_name? or Regex.match?(~r|^fresha.*|, file_descriptor_proto.package)
       end)
       |> Stream.map(&build_service_metadata/1)
-      |> Enum.flat_map(fn service ->
-        service_name_to_pascal = Recase.to_pascal(service.service_name)
-        behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, service.methods)
-        impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, service.methods)
-
+      |> Enum.flat_map(fn metadata ->
         [
           Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
-            name: "#{service.service_name}_rpc_behaviour.ex",
-            content: behaviour_module
+            name: metadata.behaviour_path,
+            content: metadata.behaviour_module
           ),
           Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
-            name: "#{service.service_name}_rpc_impl.ex",
-            content: impl_module
+            name: metadata.impl_path,
+            content: metadata.impl_module
           )
         ]
       end)
@@ -83,35 +89,56 @@ defmodule RPCProtoGenHelpers.CLI do
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [_]}), do: true
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: []}), do: false
 
-  defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
-         name: name,
-         package: package,
-         service: [
-           %Google.Protobuf.ServiceDescriptorProto{method: methods}
-         ],
-         source_code_info: %Google.Protobuf.SourceCodeInfo{
-           location: source_code_locations
-         }
+  defp build_service_metadata(%{
+         file_descriptor_proto: %Google.Protobuf.FileDescriptorProto{
+           name: name,
+           package: package,
+           service: [
+             %Google.Protobuf.ServiceDescriptorProto{method: methods}
+           ],
+           source_code_info: %Google.Protobuf.SourceCodeInfo{
+             location: source_code_locations
+           }
+         },
+         legacy_name?: legacy_name?
        }) do
-    [_, service_name, version] = Regex.run(~r|^rpc\.(\w+)\.v(\d+)$|, package)
+    service_name = name |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
+    service_name_to_pascal = Recase.to_pascal(service_name)
+    package_components = package |> String.split(".")
+    package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
+
+    stub =
+      if legacy_name? do
+        "#{package_to_pascal}.RPCService.Stub"
+      else
+        "#{package_to_pascal}.#{service_name_to_pascal}Service.Stub"
+      end
 
     comment_map = extract_comments(source_code_locations)
 
+    methods =
+      methods
+      |> Enum.with_index()
+      |> Enum.map(fn {method, method_index} ->
+        %{
+          name: Recase.to_snake(method.name),
+          request: extract_request(method),
+          response: extract_response(method),
+          comments: comment_map[method_index]
+        }
+      end)
+
+    behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, methods)
+    impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, stub, methods)
+
+    behaviour_path = Path.join(package_components ++ ["#{service_name}_client_behaviour.ex"])
+    impl_path = Path.join(package_components ++ ["#{service_name}_client_impl.ex"])
+
     %{
-      file_descriptor_name: name,
-      service_name: service_name,
-      version: version,
-      methods:
-        methods
-        |> Enum.with_index()
-        |> Enum.map(fn {method, method_index} ->
-          %{
-            name: Recase.to_snake(method.name),
-            request: extract_request(method),
-            response: extract_response(method),
-            comments: comment_map[method_index]
-          }
-        end)
+      behaviour_path: behaviour_path,
+      behaviour_module: behaviour_module,
+      impl_path: impl_path,
+      impl_module: impl_module
     }
   end
 
@@ -130,8 +157,13 @@ defmodule RPCProtoGenHelpers.CLI do
            # This path extraction might seem arbitrary, but see
            # https://groups.google.com/g/protobuf/c/AyOQvhtwvYc?pli=1 and
            # https://github.com/protocolbuffers/protobuf/blob/5b32936822e64b796fa18fcff53df2305c6b7686/src/google/protobuf/descriptor.proto#L1125
-           # for more explanation
-           path: [_, _, _, method_index],
+           # for more explanation. The TL;DR is:
+           # 6 - service field
+           # 0 - first service (i.e. RPCService)
+           # 2 - method field
+           # index - the index of that method
+           # This means we only extract comments before each method, and not for imports etc.
+           path: [6, 0, 2, method_index],
            leading_comments: leading_comment,
            trailing_comments: nil
          },
@@ -143,7 +175,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
   defp extract_comment(
          %Google.Protobuf.SourceCodeInfo.Location{
-           path: [_, _, _, method_index],
+           path: [6, 0, 2, method_index],
            leading_comments: nil,
            trailing_comments: trailing_comment
          },
@@ -162,11 +194,9 @@ defmodule RPCProtoGenHelpers.CLI do
     Map.update(comments, method_index, [comment], &[comment | &1])
   end
 
-  @separator "\n\n  "
   defp join_and_format_comments(comments = [_ | _]) do
-    Enum.map_join(comments, @separator, fn str ->
-      # Clean newlines with possible spaces inside comments
-      str |> String.trim() |> String.replace(~r|(\s*\n+\s*)|, @separator)
+    Enum.map_join(comments, "\n\n  ", fn str ->
+      str |> String.trim() |> String.replace(~r|(\n +)|, "\n  ")
     end)
   end
 

@@ -24,3 +24,6 @@ rpc_proto_gen_helpers-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+protoc-gen-elixir-rpc
+tags
