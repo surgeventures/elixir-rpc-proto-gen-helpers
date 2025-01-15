@@ -74,24 +74,26 @@ defmodule RPCProtoGenHelpers.CLI do
   end
 
   # Assume 1 package per service
-  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [%{name: "RPCService"}]}), do: true
+  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [_]}), do: true
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: _}), do: false
 
   defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
-         name: name,
+         name: path,
          package: package,
          service: [
-           %Google.Protobuf.ServiceDescriptorProto{method: methods}
+           %Google.Protobuf.ServiceDescriptorProto{name: service_name, method: methods}
          ],
          source_code_info: %Google.Protobuf.SourceCodeInfo{
            location: source_code_locations
          }
        }) do
-    service_name = name |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
-    service_name_to_pascal = Recase.to_pascal(service_name)
+    service_name_from_path =
+      path |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
+
+    service_name_from_path_to_pascal = Recase.to_pascal(service_name_from_path)
     package_components = package |> String.split(".")
     package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
-    stub = "#{package_to_pascal}.RPCService.Stub"
+    stub = "#{package_to_pascal}.#{service_name}.Stub"
 
     comment_map = extract_comments(source_code_locations)
 
@@ -107,11 +109,13 @@ defmodule RPCProtoGenHelpers.CLI do
         }
       end)
 
-    behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, methods)
-    impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, stub, methods)
+    behaviour_module = EExHelper.rpc_client_behaviour(service_name_from_path_to_pascal, methods)
+    impl_module = EExHelper.rpc_client_impl(service_name_from_path_to_pascal, stub, methods)
 
-    behaviour_path = Path.join(package_components ++ ["#{service_name}_client_behaviour.ex"])
-    impl_path = Path.join(package_components ++ ["#{service_name}_client_impl.ex"])
+    behaviour_path =
+      Path.join(package_components ++ ["#{service_name_from_path}_client_behaviour.ex"])
+
+    impl_path = Path.join(package_components ++ ["#{service_name_from_path}_client_impl.ex"])
 
     %{
       behaviour_path: behaviour_path,
