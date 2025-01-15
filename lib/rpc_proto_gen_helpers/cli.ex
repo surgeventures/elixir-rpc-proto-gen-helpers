@@ -13,7 +13,6 @@ defmodule RPCProtoGenHelpers.CLI do
 
     EEx.function_from_file(:def, :rpc_client_impl, "impl.eex", [
       :module_root,
-      :service_name,
       :methods
     ])
   end
@@ -106,7 +105,7 @@ defmodule RPCProtoGenHelpers.CLI do
       end)
 
     behaviour_module = EExHelper.rpc_client_behaviour(module_root, methods)
-    impl_module = EExHelper.rpc_client_impl(module_root, service_name, methods)
+    impl_module = EExHelper.rpc_client_impl(module_root, methods)
 
     behaviour_path =
       Path.join(package_components ++ ["#{service_name_to_snake}_client_behaviour.ex"])
