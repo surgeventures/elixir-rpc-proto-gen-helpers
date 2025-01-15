@@ -74,8 +74,8 @@ defmodule RPCProtoGenHelpers.CLI do
   end
 
   # Assume 1 package per service
-  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [_]}), do: true
-  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: []}), do: false
+  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [%{name: "RPCService"}]}), do: true
+  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: _}), do: false
 
   defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
          name: name,
