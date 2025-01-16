@@ -78,6 +78,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
   defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
          name: file_path,
+         package: package,
          service: [
            %Google.Protobuf.ServiceDescriptorProto{name: service_name, method: methods}
          ],
@@ -85,7 +86,7 @@ defmodule RPCProtoGenHelpers.CLI do
            location: source_code_locations
          }
        }) do
-    package_components = file_path |> Path.dirname() |> Path.split()
+    package_components = package |> String.split(".")
     package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
     module_root = "#{package_to_pascal}.#{service_name}"
     file_name = file_path |> Path.basename() |> Path.rootname()
