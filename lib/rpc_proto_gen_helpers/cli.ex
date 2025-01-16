@@ -77,6 +77,7 @@ defmodule RPCProtoGenHelpers.CLI do
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: _}), do: false
 
   defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
+         name: file_path,
          package: package,
          service: [
            %Google.Protobuf.ServiceDescriptorProto{name: service_name, method: methods}
@@ -88,7 +89,7 @@ defmodule RPCProtoGenHelpers.CLI do
     package_components = package |> String.split(".")
     package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
     module_root = "#{package_to_pascal}.#{service_name}"
-    service_name_to_snake = service_name |> String.replace("RPC", "Rpc") |> Recase.to_snake()
+    file_name = file_path |> Path.basename() |> Path.rootname()
 
     comment_map = extract_comments(source_code_locations)
 
@@ -107,10 +108,9 @@ defmodule RPCProtoGenHelpers.CLI do
     behaviour_module = EExHelper.rpc_client_behaviour(module_root, methods)
     impl_module = EExHelper.rpc_client_impl(module_root, methods)
 
-    behaviour_path =
-      Path.join(package_components ++ ["#{service_name_to_snake}_client_behaviour.ex"])
+    behaviour_path = Path.join(package_components ++ ["#{file_name}_client_behaviour.ex"])
 
-    impl_path = Path.join(package_components ++ ["#{service_name_to_snake}_client_impl.ex"])
+    impl_path = Path.join(package_components ++ ["#{file_name}_client_impl.ex"])
 
     %{
       behaviour_path: behaviour_path,

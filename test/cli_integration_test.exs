@@ -60,7 +60,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_impl,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_impl.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_impl.ex"
       )
 
       expected_behaviour = ~S"""
@@ -89,7 +89,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_behaviour.ex"
       )
     end
 
@@ -165,7 +165,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_impl,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_impl.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_impl.ex"
       )
 
       expected_behaviour = ~S"""
@@ -194,7 +194,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_behaviour.ex"
       )
     end
 
@@ -272,7 +272,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_impl,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_impl.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_impl.ex"
       )
 
       expected_behaviour = ~S"""
@@ -301,7 +301,7 @@ defmodule RPCProtoGenHelpers.CLITest do
 
       assert_content_matches_file(
         expected_behaviour,
-        "#{tmp_dir}/generated/rpc/gift_cards/v1/rpc_service_client_behaviour.ex"
+        "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_behaviour.ex"
       )
     end
 
