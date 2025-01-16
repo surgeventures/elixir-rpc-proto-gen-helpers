@@ -108,9 +108,11 @@ defmodule RPCProtoGenHelpers.CLI do
     behaviour_module = EExHelper.rpc_client_behaviour(module_root, methods)
     impl_module = EExHelper.rpc_client_impl(module_root, methods)
 
-    behaviour_path = Path.join(package_components ++ ["#{file_name}_client_behaviour.ex"])
+    path_components = file_path |> Path.dirname() |> Path.split()
 
-    impl_path = Path.join(package_components ++ ["#{file_name}_client_impl.ex"])
+    behaviour_path = Path.join(path_components ++ ["#{file_name}_client_behaviour.ex"])
+
+    impl_path = Path.join(path_components ++ ["#{file_name}_client_impl.ex"])
 
     %{
       behaviour_path: behaviour_path,
