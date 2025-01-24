@@ -93,6 +93,50 @@ defmodule RPCProtoGenHelpers.CLITest do
       )
     end
 
+    test "if exclude_packages is set, it does not generate the service", %{
+      tmp_dir: tmp_dir
+    } do
+      rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
+      File.mkdir_p!(rpc_path)
+
+      service_proto = """
+      syntax = "proto3";
+
+      package rpc.gift_cards.v1;
+
+      import "rpc/gift_cards/v1/initialise_gift_card.proto";
+
+      service RPCService {
+        rpc InitialiseGiftCard(rpc.gift_cards.v1.InitialiseGiftCardRequest) returns (rpc.gift_cards.v1.InitialiseGiftCardResponse);
+      }
+      """
+
+      rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.gift_cards.v1;
+
+      message InitialiseGiftCardRequest {}
+
+      message InitialiseGiftCardResponse {
+        int32 id = 1;
+      }
+      """
+
+      File.write!(Path.join(rpc_path, "gift_cards_service.proto"), service_proto)
+      File.write!(Path.join(rpc_path, "initialise_gift_card.proto"), rpc_proto)
+
+      exec_buf!(tmp_dir, template: "buf.with.opt.yaml")
+
+      refute File.exists?(
+               "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_impl.ex"
+             )
+
+      refute File.exists?(
+               "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_behaviour.ex"
+             )
+    end
+
     test "injects single-line comments into docs", %{tmp_dir: tmp_dir} do
       rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
       File.mkdir_p!(rpc_path)
@@ -412,12 +456,19 @@ defmodule RPCProtoGenHelpers.CLITest do
     assert String.trim_trailing(content, "\n") == file_content
   end
 
-  defp exec_buf!(tmp_dir) do
+  defp exec_buf!(tmp_dir, opts \\ []) do
+    template = Keyword.get(opts, :template, "buf.gen.yaml")
+
     cwd = File.cwd!()
-    buf_gen = Path.join([cwd, "test", "buf.gen.yaml"])
-    File.cp!(buf_gen, Path.join(tmp_dir, "buf.gen.yaml"))
+    buf_gen = Path.join([cwd, "test", template])
+    File.cp!(buf_gen, Path.join(tmp_dir, template))
     File.cd!(tmp_dir)
-    assert {_, 0} = System.cmd("buf", ["generate", tmp_dir], stderr_to_stdout: true)
+
+    assert {_, 0} =
+             System.cmd("buf", ["generate", "--template", template, tmp_dir],
+               stderr_to_stdout: true
+             )
+
     File.cd!(cwd)
   end
 end

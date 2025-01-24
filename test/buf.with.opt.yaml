@@ -1,0 +1,14 @@
+version: v2
+clean: true
+
+plugins:
+  - local: protoc-gen-elixir
+    strategy: all
+    out: ./generated
+    opt: plugins=grpc
+  - local: protoc-gen-elixir-rpc
+    strategy: all
+    out: ./generated
+    opt:
+      - plugins=grpc
+      - exclude_packages=rpc.gift_cards.v1
