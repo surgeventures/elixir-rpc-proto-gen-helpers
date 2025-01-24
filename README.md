@@ -42,6 +42,8 @@ plugins:
       - exclude_packages=rpc.gift_cards.v1
 ```
 
+If you want to exclude multiple packages, delimit them with a comma.
+
 Note that `protoc-gen-elixir` is [a separate plugin](https://github.com/elixir-protobuf/protobuf?tab=readme-ov-file).
 
 To visualise the metadata structure that is parsed, see `buf.example.json`.

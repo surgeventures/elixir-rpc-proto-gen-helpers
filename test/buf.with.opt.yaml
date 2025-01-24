@@ -11,4 +11,4 @@ plugins:
     out: ./generated
     opt:
       - plugins=grpc
-      - exclude_packages=rpc.gift_cards.v1
+      - exclude_packages=rpc.a.v1,rpc.b.v1

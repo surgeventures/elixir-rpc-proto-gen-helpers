@@ -93,48 +93,92 @@ defmodule RPCProtoGenHelpers.CLITest do
       )
     end
 
-    test "if exclude_packages is set, it does not generate the service", %{
+    test "if exclude_packages is set, it does not generate the service(s)", %{
       tmp_dir: tmp_dir
     } do
-      rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
-      File.mkdir_p!(rpc_path)
+      a_rpc_path = Path.join(tmp_dir, "rpc/a/v1")
+      b_rpc_path = Path.join(tmp_dir, "rpc/b/v1")
+      c_rpc_path = Path.join(tmp_dir, "rpc/c/v1")
 
-      service_proto = """
+      File.mkdir_p!(a_rpc_path)
+      File.mkdir_p!(b_rpc_path)
+      File.mkdir_p!(c_rpc_path)
+
+      a_service_proto = """
       syntax = "proto3";
 
-      package rpc.gift_cards.v1;
+      package rpc.a.v1;
 
-      import "rpc/gift_cards/v1/initialise_gift_card.proto";
+      import "rpc/a/v1/a_request.proto";
 
       service RPCService {
-        rpc InitialiseGiftCard(rpc.gift_cards.v1.InitialiseGiftCardRequest) returns (rpc.gift_cards.v1.InitialiseGiftCardResponse);
+        rpc ARequest(rpc.a.v1.ARequest) returns (rpc.a.v1.AResponse);
       }
       """
 
-      rpc_proto = """
+      b_service_proto = """
       syntax = "proto3";
 
-      package rpc.gift_cards.v1;
+      package rpc.b.v1;
 
-      message InitialiseGiftCardRequest {}
+      import "rpc/b/v1/b_request.proto";
 
-      message InitialiseGiftCardResponse {
-        int32 id = 1;
+      service RPCService {
+        rpc BRequest(rpc.b.v1.BRequest) returns (rpc.b.v1.BResponse);
       }
       """
 
-      File.write!(Path.join(rpc_path, "gift_cards_service.proto"), service_proto)
-      File.write!(Path.join(rpc_path, "initialise_gift_card.proto"), rpc_proto)
+      c_service_proto = """
+      syntax = "proto3";
+
+      package rpc.c.v1;
+
+      import "rpc/c/v1/c_request.proto";
+
+      service RPCService {
+        rpc CRequest(rpc.c.v1.CRequest) returns (rpc.c.v1.CResponse);
+      }
+      """
+
+      a_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.a.v1;
+      message ARequest {}
+      message AResponse {}
+      """
+
+      b_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.b.v1;
+      message BRequest {}
+      message BResponse {}
+      """
+
+      c_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.c.v1;
+      message CRequest {}
+      message CResponse {}
+      """
+
+      File.write!(Path.join(a_rpc_path, "a_service.proto"), a_service_proto)
+      File.write!(Path.join(b_rpc_path, "b_service.proto"), b_service_proto)
+      File.write!(Path.join(c_rpc_path, "c_service.proto"), c_service_proto)
+
+      File.write!(Path.join(a_rpc_path, "a_request.proto"), a_rpc_proto)
+      File.write!(Path.join(b_rpc_path, "b_request.proto"), b_rpc_proto)
+      File.write!(Path.join(c_rpc_path, "c_request.proto"), c_rpc_proto)
 
       exec_buf!(tmp_dir, template: "buf.with.opt.yaml")
 
-      refute File.exists?(
-               "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_impl.ex"
-             )
+      refute File.exists?("#{tmp_dir}/generated/rpc/a/v1/a_service_client_impl.ex")
 
-      refute File.exists?(
-               "#{tmp_dir}/generated/rpc/gift_cards/v1/gift_cards_service_client_behaviour.ex"
-             )
+      refute File.exists?("#{tmp_dir}/generated/rpc/b/v1/b_service_client_impl.ex")
+
+      assert File.exists?("#{tmp_dir}/generated/rpc/c/v1/c_service_client_impl.ex")
     end
 
     test "injects single-line comments into docs", %{tmp_dir: tmp_dir} do

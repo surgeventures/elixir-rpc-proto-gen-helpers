@@ -193,10 +193,11 @@ defmodule RPCProtoGenHelpers.CLI do
          %Google.Protobuf.FileDescriptorProto{package: package},
          parameter
        ) do
-    parameter
-    |> String.split(",")
+    keys_and_values = Regex.scan(~r/(\w+)=(.*?)(?=,\w+=|$)/, parameter, capture: :all_but_first)
+
+    keys_and_values
     |> Enum.any?(fn
-      "exclude_packages=" <> excluded_packages ->
+      ["exclude_packages", excluded_packages] ->
         package in String.split(excluded_packages, ",")
 
       _ ->
