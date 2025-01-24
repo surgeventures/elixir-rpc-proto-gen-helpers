@@ -7,13 +7,12 @@ defmodule RPCProtoGenHelpers.CLI do
     require EEx
 
     EEx.function_from_file(:def, :rpc_client_behaviour, "behaviour.eex", [
-      :service_name,
+      :module_root,
       :methods
     ])
 
     EEx.function_from_file(:def, :rpc_client_impl, "impl.eex", [
-      :service_name,
-      :stub,
+      :module_root,
       :methods
     ])
   end
@@ -54,18 +53,6 @@ defmodule RPCProtoGenHelpers.CLI do
     files =
       request.proto_file
       |> Stream.filter(&rpc_service?/1)
-      |> Stream.map(fn file_descriptor_proto ->
-        %{
-          file_descriptor_proto: file_descriptor_proto,
-          legacy_name?: Regex.match?(~r|^rpc\.(\w+)\.v(\d+)$|, file_descriptor_proto.package)
-        }
-      end)
-      |> Stream.filter(fn %{
-                            file_descriptor_proto: file_descriptor_proto,
-                            legacy_name?: legacy_name?
-                          } ->
-        legacy_name? or Regex.match?(~r|^fresha.*|, file_descriptor_proto.package)
-      end)
       |> Stream.map(&build_service_metadata/1)
       |> Enum.flat_map(fn metadata ->
         [
@@ -87,32 +74,22 @@ defmodule RPCProtoGenHelpers.CLI do
 
   # Assume 1 package per service
   defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: [_]}), do: true
-  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: []}), do: false
+  defp rpc_service?(%Google.Protobuf.FileDescriptorProto{service: _}), do: false
 
-  defp build_service_metadata(%{
-         file_descriptor_proto: %Google.Protobuf.FileDescriptorProto{
-           name: name,
-           package: package,
-           service: [
-             %Google.Protobuf.ServiceDescriptorProto{method: methods}
-           ],
-           source_code_info: %Google.Protobuf.SourceCodeInfo{
-             location: source_code_locations
-           }
-         },
-         legacy_name?: legacy_name?
+  defp build_service_metadata(%Google.Protobuf.FileDescriptorProto{
+         name: file_path,
+         package: package,
+         service: [
+           %Google.Protobuf.ServiceDescriptorProto{name: service_name, method: methods}
+         ],
+         source_code_info: %Google.Protobuf.SourceCodeInfo{
+           location: source_code_locations
+         }
        }) do
-    service_name = name |> Path.basename() |> Path.rootname() |> String.replace("_service", "")
-    service_name_to_pascal = Recase.to_pascal(service_name)
     package_components = package |> String.split(".")
     package_to_pascal = package_components |> Enum.map_join(".", &Recase.to_pascal/1)
-
-    stub =
-      if legacy_name? do
-        "#{package_to_pascal}.RPCService.Stub"
-      else
-        "#{package_to_pascal}.#{service_name_to_pascal}Service.Stub"
-      end
+    module_root = "#{package_to_pascal}.#{service_name}"
+    file_name = file_path |> Path.basename() |> Path.rootname()
 
     comment_map = extract_comments(source_code_locations)
 
@@ -128,11 +105,14 @@ defmodule RPCProtoGenHelpers.CLI do
         }
       end)
 
-    behaviour_module = EExHelper.rpc_client_behaviour(service_name_to_pascal, methods)
-    impl_module = EExHelper.rpc_client_impl(service_name_to_pascal, stub, methods)
+    behaviour_module = EExHelper.rpc_client_behaviour(module_root, methods)
+    impl_module = EExHelper.rpc_client_impl(module_root, methods)
 
-    behaviour_path = Path.join(package_components ++ ["#{service_name}_client_behaviour.ex"])
-    impl_path = Path.join(package_components ++ ["#{service_name}_client_impl.ex"])
+    dir_path = Path.dirname(file_path)
+
+    behaviour_path = Path.join(dir_path, "#{file_name}_client_behaviour.ex")
+
+    impl_path = Path.join(dir_path, "#{file_name}_client_impl.ex")
 
     %{
       behaviour_path: behaviour_path,
