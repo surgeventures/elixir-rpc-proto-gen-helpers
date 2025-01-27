@@ -93,6 +93,94 @@ defmodule RPCProtoGenHelpers.CLITest do
       )
     end
 
+    test "if exclude_packages is set, it does not generate the service(s)", %{
+      tmp_dir: tmp_dir
+    } do
+      a_rpc_path = Path.join(tmp_dir, "rpc/a/v1")
+      b_rpc_path = Path.join(tmp_dir, "rpc/b/v1")
+      c_rpc_path = Path.join(tmp_dir, "rpc/c/v1")
+
+      File.mkdir_p!(a_rpc_path)
+      File.mkdir_p!(b_rpc_path)
+      File.mkdir_p!(c_rpc_path)
+
+      a_service_proto = """
+      syntax = "proto3";
+
+      package rpc.a.v1;
+
+      import "rpc/a/v1/a_request.proto";
+
+      service RPCService {
+        rpc ARequest(rpc.a.v1.ARequest) returns (rpc.a.v1.AResponse);
+      }
+      """
+
+      b_service_proto = """
+      syntax = "proto3";
+
+      package rpc.b.v1;
+
+      import "rpc/b/v1/b_request.proto";
+
+      service RPCService {
+        rpc BRequest(rpc.b.v1.BRequest) returns (rpc.b.v1.BResponse);
+      }
+      """
+
+      c_service_proto = """
+      syntax = "proto3";
+
+      package rpc.c.v1;
+
+      import "rpc/c/v1/c_request.proto";
+
+      service RPCService {
+        rpc CRequest(rpc.c.v1.CRequest) returns (rpc.c.v1.CResponse);
+      }
+      """
+
+      a_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.a.v1;
+      message ARequest {}
+      message AResponse {}
+      """
+
+      b_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.b.v1;
+      message BRequest {}
+      message BResponse {}
+      """
+
+      c_rpc_proto = """
+      syntax = "proto3";
+
+      package rpc.c.v1;
+      message CRequest {}
+      message CResponse {}
+      """
+
+      File.write!(Path.join(a_rpc_path, "a_service.proto"), a_service_proto)
+      File.write!(Path.join(b_rpc_path, "b_service.proto"), b_service_proto)
+      File.write!(Path.join(c_rpc_path, "c_service.proto"), c_service_proto)
+
+      File.write!(Path.join(a_rpc_path, "a_request.proto"), a_rpc_proto)
+      File.write!(Path.join(b_rpc_path, "b_request.proto"), b_rpc_proto)
+      File.write!(Path.join(c_rpc_path, "c_request.proto"), c_rpc_proto)
+
+      exec_buf!(tmp_dir, template: "buf.with.opt.yaml")
+
+      refute File.exists?("#{tmp_dir}/generated/rpc/a/v1/a_service_client_impl.ex")
+
+      refute File.exists?("#{tmp_dir}/generated/rpc/b/v1/b_service_client_impl.ex")
+
+      assert File.exists?("#{tmp_dir}/generated/rpc/c/v1/c_service_client_impl.ex")
+    end
+
     test "injects single-line comments into docs", %{tmp_dir: tmp_dir} do
       rpc_path = Path.join(tmp_dir, "rpc/gift_cards/v1")
       File.mkdir_p!(rpc_path)
@@ -412,12 +500,19 @@ defmodule RPCProtoGenHelpers.CLITest do
     assert String.trim_trailing(content, "\n") == file_content
   end
 
-  defp exec_buf!(tmp_dir) do
+  defp exec_buf!(tmp_dir, opts \\ []) do
+    template = Keyword.get(opts, :template, "buf.gen.yaml")
+
     cwd = File.cwd!()
-    buf_gen = Path.join([cwd, "test", "buf.gen.yaml"])
-    File.cp!(buf_gen, Path.join(tmp_dir, "buf.gen.yaml"))
+    buf_gen = Path.join([cwd, "test", template])
+    File.cp!(buf_gen, Path.join(tmp_dir, template))
     File.cd!(tmp_dir)
-    assert {_, 0} = System.cmd("buf", ["generate", tmp_dir], stderr_to_stdout: true)
+
+    assert {_, 0} =
+             System.cmd("buf", ["generate", "--template", template, tmp_dir],
+               stderr_to_stdout: true
+             )
+
     File.cd!(cwd)
   end
 end

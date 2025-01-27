@@ -53,6 +53,7 @@ defmodule RPCProtoGenHelpers.CLI do
     files =
       request.proto_file
       |> Stream.filter(&rpc_service?/1)
+      |> Stream.reject(&package_in_excluded_packages?(&1, request.parameter))
       |> Stream.map(&build_service_metadata/1)
       |> Enum.flat_map(fn metadata ->
         [
@@ -186,5 +187,21 @@ defmodule RPCProtoGenHelpers.CLI do
 
   defp dotted_path_to_pascal(str) do
     str |> String.split(".") |> Enum.map_join(".", &Recase.to_pascal/1)
+  end
+
+  defp package_in_excluded_packages?(
+         %Google.Protobuf.FileDescriptorProto{package: package},
+         parameter
+       ) do
+    keys_and_values = Regex.scan(~r/(\w+)=(.*?)(?=,\w+=|$)/, parameter, capture: :all_but_first)
+
+    keys_and_values
+    |> Enum.any?(fn
+      ["exclude_packages", excluded_packages] ->
+        package in String.split(excluded_packages, ",")
+
+      _ ->
+        false
+    end)
   end
 end
