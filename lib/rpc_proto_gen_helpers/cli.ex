@@ -57,21 +57,21 @@ defmodule RPCProtoGenHelpers.CLI do
       |> Stream.map(&build_service_metadata/1)
       |> Enum.flat_map(fn metadata ->
         [
-          Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
+          %Google.Protobuf.Compiler.CodeGeneratorResponse.File{
             name: metadata.behaviour_path,
             content: metadata.behaviour_module
-          ),
-          Google.Protobuf.Compiler.CodeGeneratorResponse.File.new(
+          },
+          %Google.Protobuf.Compiler.CodeGeneratorResponse.File{
             name: metadata.impl_path,
             content: metadata.impl_module
-          )
+          }
         ]
       end)
 
-    response = Google.Protobuf.Compiler.CodeGeneratorResponse.new(
+    response = %Google.Protobuf.Compiler.CodeGeneratorResponse{
       file: files,
       supported_features: Google.Protobuf.Compiler.CodeGeneratorResponse.Feature.value(:FEATURE_PROTO3_OPTIONAL)
-    )
+    }
 
     IO.binwrite(Protobuf.Encoder.encode(response))
   end
