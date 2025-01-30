@@ -68,7 +68,10 @@ defmodule RPCProtoGenHelpers.CLI do
         ]
       end)
 
-    response = Google.Protobuf.Compiler.CodeGeneratorResponse.new(file: files)
+    response = Google.Protobuf.Compiler.CodeGeneratorResponse.new(
+      file: files,
+      supported_features: Google.Protobuf.Compiler.CodeGeneratorResponse.Feature.value(:FEATURE_PROTO3_OPTIONAL)
+    )
 
     IO.binwrite(Protobuf.Encoder.encode(response))
   end
