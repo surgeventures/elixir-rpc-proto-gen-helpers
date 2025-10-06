@@ -564,6 +564,7 @@ defmodule RPCProtoGenHelpers.CLITest do
       "#{inspect(context[:case])}#{context[:describe]}#{context[:test]}"
       |> String.downcase()
       |> String.replace(["-", " ", ".", "_"], "_")
+      |> String.replace(~r/[^a-z0-9_]/, "")
 
     tmp_dir_name = Path.join(System.tmp_dir!(), dir_name)
 
