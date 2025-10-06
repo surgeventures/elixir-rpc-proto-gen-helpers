@@ -51,15 +51,15 @@ jobs:
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-
 
+      - name: Install dependencies
+        run: mix deps.get
+
       - name: Install escript
         run: |
           PATH="~/.mix/escripts:$PATH" && \
           mix escript.install --force hex protobuf 0.7.1 && \
           mix escript.build && \
           mix escript.install --force protoc-gen-elixir-rpc
-
-      - name: Install dependencies
-        run: mix deps.get
 
       - name: Run tests
         run: mix test
