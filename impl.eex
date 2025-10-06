@@ -7,7 +7,7 @@ defmodule <%= module_root %>.Client do
 <% indented_comments = comments && (comments |> String.split("\n") |> Enum.map_join("\n", &("  " <> &1))) %>
   <%= if indented_comments do %>@impl true
   @doc """
-  <%= indented_comments %>
+<%= indented_comments %>
   """ <% else %>@impl true<% end %>
   def <%= function %>(request, opts \\ []) do
     call(request, :<%= function %>, opts)
@@ -15,7 +15,7 @@ defmodule <%= module_root %>.Client do
 
   <%= if indented_comments do %>@impl true
   @doc """
-  <%= indented_comments %>
+<%= indented_comments %>
   """ <% else %>@impl true<% end %>
   def <%= function %>!(request, opts \\ []) do
     call!(request, :<%= function %>, opts)
