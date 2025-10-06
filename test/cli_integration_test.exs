@@ -566,7 +566,8 @@ defmodule RPCProtoGenHelpers.CLITest do
       |> String.replace(["-", " ", ".", "_"], "_")
       |> String.replace(~r/[^a-z0-9_]/, "")
 
-    tmp_dir_name = Path.join(System.tmp_dir!(), dir_name)
+    system_temp = System.get_env("TEMP_DIR") || System.tmp_dir!()
+    tmp_dir_name = Path.join(system_temp, dir_name)
 
     File.rm_rf!(tmp_dir_name)
     File.mkdir_p!(tmp_dir_name)

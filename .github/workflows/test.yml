@@ -67,3 +67,5 @@ jobs:
 
       - name: Run tests
         run: mix test
+        env:
+          TEMP_DIR: ${{ runner.temp }}
