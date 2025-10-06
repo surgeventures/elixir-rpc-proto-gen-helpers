@@ -44,6 +44,10 @@ jobs:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
 
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+
       - name: Restore dependencies cache
         uses: actions/cache@v4
         with:
