@@ -15,6 +15,21 @@ defmodule RPCProtoGenHelpers.CLI do
       :module_root,
       :methods
     ])
+
+    defp indent(text, spaces) do
+      prefix = String.duplicate(" ", spaces)
+
+      text
+      |> String.split("\n")
+      |> Enum.map_join("\n", fn line ->
+        # Doesn't indent blank lines
+        if line == "" do
+          line
+        else
+          "#{prefix}#{line}"
+        end
+      end)
+    end
   end
 
   def main(["--version"]) do
@@ -47,7 +62,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
     # Binary parsing logic adapted from `protobuf` CLI logic
     # https://github.com/elixir-protobuf/protobuf/blob/v0.7.1/lib/protobuf/protoc/cli.ex
-    bin = IO.binread(:all)
+    bin = IO.binread(:eof)
     request = Protobuf.Decoder.decode(bin, Google.Protobuf.Compiler.CodeGeneratorRequest)
 
     files =
@@ -70,7 +85,8 @@ defmodule RPCProtoGenHelpers.CLI do
 
     response = %Google.Protobuf.Compiler.CodeGeneratorResponse{
       file: files,
-      supported_features: Google.Protobuf.Compiler.CodeGeneratorResponse.Feature.value(:FEATURE_PROTO3_OPTIONAL)
+      supported_features:
+        Google.Protobuf.Compiler.CodeGeneratorResponse.Feature.value(:FEATURE_PROTO3_OPTIONAL)
     }
 
     IO.binwrite(Protobuf.Encoder.encode(response))
@@ -179,8 +195,8 @@ defmodule RPCProtoGenHelpers.CLI do
   end
 
   defp join_and_format_comments(comments = [_ | _]) do
-    Enum.map_join(comments, "\n\n  ", fn str ->
-      str |> String.trim() |> String.replace(~r|(\n +)|, "\n  ")
+    Enum.map_join(comments, "\n\n", fn str ->
+      str |> String.trim() |> String.replace(~r|(\n +)|, "\n")
     end)
   end
 
