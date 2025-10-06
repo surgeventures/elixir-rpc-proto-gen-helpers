@@ -18,17 +18,7 @@ defmodule RPCProtoGenHelpers.CLI do
 
     defp indent(text, spaces) do
       prefix = String.duplicate(" ", spaces)
-
-      text
-      |> String.split("\n")
-      |> Enum.map_join("\n", fn line ->
-        # Doesn't indent blank lines
-        if line == "" do
-          line
-        else
-          "#{prefix}#{line}"
-        end
-      end)
+      String.replace(text, ~r/^(?=.)/m, prefix)
     end
   end
 
