@@ -4,17 +4,18 @@ defmodule <%= module_root %>.Client do
   @behaviour <%= module_root %>.ClientBehaviour
   use RpcClient.Client, service: <%= module_root %>, stub: <%= module_root %>.Stub
 <%= for %{name: function, comments: comments} <- methods do %>
-  <%= if comments do %>@impl true
+<% indented_comments = comments && (comments |> String.split("\n") |> Enum.map_join("\n", &("  " <> &1))) %>
+  <%= if indented_comments do %>@impl true
   @doc """
-  <%= comments %>
+  <%= indented_comments %>
   """ <% else %>@impl true<% end %>
   def <%= function %>(request, opts \\ []) do
     call(request, :<%= function %>, opts)
   end
 
-  <%= if comments do %>@impl true
+  <%= if indented_comments do %>@impl true
   @doc """
-  <%= comments %>
+  <%= indented_comments %>
   """ <% else %>@impl true<% end %>
   def <%= function %>!(request, opts \\ []) do
     call!(request, :<%= function %>, opts)
