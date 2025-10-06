@@ -6,7 +6,7 @@ defmodule <%= module_root %>.Client do
 <%= for %{name: function, comments: comments} <- methods do %>
   <%= if comments do %>@impl true
   @doc """
-  <%= comments %>
+<%= indent(comments, 2) %>
   """ <% else %>@impl true<% end %>
   def <%= function %>(request, opts \\ []) do
     call(request, :<%= function %>, opts)
@@ -14,7 +14,7 @@ defmodule <%= module_root %>.Client do
 
   <%= if comments do %>@impl true
   @doc """
-  <%= comments %>
+<%= indent(comments, 2) %>
   """ <% else %>@impl true<% end %>
   def <%= function %>!(request, opts \\ []) do
     call!(request, :<%= function %>, opts)

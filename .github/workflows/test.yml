@@ -1,0 +1,71 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
+    strategy:
+      matrix:
+        include:
+          # Elixir 1.18.4
+          - elixir: "1.18.4"
+            otp: "27.3.4.3"
+          - elixir: "1.18.4"
+            otp: "26.2.5.15"
+          - elixir: "1.18.4"
+            otp: "25.3.2.21"
+          # Elixir 1.17.3
+          - elixir: "1.17.3"
+            otp: "27.3.4.3"
+          - elixir: "1.17.3"
+            otp: "26.2.5.15"
+          - elixir: "1.17.3"
+            otp: "25.3.2.21"
+          # Elixir 1.16.3
+          - elixir: "1.16.3"
+            otp: "26.2.5.15"
+          - elixir: "1.16.3"
+            otp: "25.3.2.21"
+          - elixir: "1.16.3"
+            otp: "24.3.4.17"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Install escript
+        run: |
+          PATH="~/.mix/escripts:$PATH" && \
+          mix escript.install --force hex protobuf 0.7.1 && \
+          mix escript.build && \
+          mix escript.install --force protoc-gen-elixir-rpc
+
+      - name: Run tests
+        run: mix test
+        env:
+          TEMP_DIR: ${{ runner.temp }}
