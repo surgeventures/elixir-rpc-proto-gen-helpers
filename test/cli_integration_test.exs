@@ -71,16 +71,14 @@ defmodule RPCProtoGenHelpers.CLITest do
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
@@ -264,16 +262,14 @@ defmodule RPCProtoGenHelpers.CLITest do
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
@@ -371,16 +367,14 @@ defmodule RPCProtoGenHelpers.CLITest do
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t(), AdapterBehaviour.opts()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
 
         @callback initialise_gift_card(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           {:ok, Rpc.GiftCards.V1.InitialiseGiftCardResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback initialise_gift_card!(Rpc.GiftCards.V1.InitialiseGiftCardRequest.t()) ::
                           Rpc.GiftCards.V1.InitialiseGiftCardResponse.t() | no_return()
@@ -536,16 +530,14 @@ defmodule RPCProtoGenHelpers.CLITest do
 
         @callback delete_session_hook(Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookRequest.t(), AdapterBehaviour.opts()) ::
                           {:ok, Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback delete_session_hook!(Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookRequest.t(), AdapterBehaviour.opts()) ::
                           Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookResponse.t() | no_return()
 
         @callback delete_session_hook(Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookRequest.t()) ::
                           {:ok, Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookResponse.t()}
-                          | {:error, atom() | list()}
-                          | {:error, atom() | list(), list() | nil}
+                          | {:error, list(), list() | nil}
 
         @callback delete_session_hook!(Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookRequest.t()) ::
                           Fresha.Auth.Protobuf.Rpc.Partners.V1.DeleteSessionHookResponse.t() | no_return()
