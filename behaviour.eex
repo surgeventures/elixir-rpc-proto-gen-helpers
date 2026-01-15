@@ -5,16 +5,14 @@ defmodule <%= module_root %>.ClientBehaviour do
 <%= for %{name: function, request: request, response: response} <- methods do %>
   @callback <%= function %>(<%= request %>.t(), AdapterBehaviour.opts()) ::
                     {:ok, <%= response %>.t()}
-                    | {:error, atom() | list()}
-                    | {:error, atom() | list(), list() | nil}
+                    | {:error, list(), list() | nil}
 
   @callback <%= function %>!(<%= request %>.t(), AdapterBehaviour.opts()) ::
                     <%= response %>.t() | no_return()
 
   @callback <%= function %>(<%= request %>.t()) ::
                     {:ok, <%= response %>.t()}
-                    | {:error, atom() | list()}
-                    | {:error, atom() | list(), list() | nil}
+                    | {:error, list(), list() | nil}
 
   @callback <%= function %>!(<%= request %>.t()) ::
                     <%= response %>.t() | no_return()
