@@ -13,7 +13,24 @@ defmodule RPCProtoGenHelpers.MixProject do
   end
 
   # This `escript` should be available in `PATH`, so that `protoc` can find it.
-  defp escript, do: [main_module: RPCProtoGenHelpers.CLI, name: "protoc-gen-elixir-rpc"]
+  defp escript do
+    [
+      main_module: RPCProtoGenHelpers.CLI,
+      name: "protoc-gen-elixir-rpc",
+      emu_args: emu_args()
+    ]
+  end
+
+  # OTP 26+ changed how stdin encoding works, requiring this kernel parameter
+  # to properly read raw binary data from stdin without unicode translation errors.
+  # See: https://github.com/elixir-protobuf/protobuf/blob/main/mix.exs
+  defp emu_args do
+    if System.otp_release() in ["26", "27"] do
+      "-kernel standard_io_encoding latin1"
+    else
+      ""
+    end
+  end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
