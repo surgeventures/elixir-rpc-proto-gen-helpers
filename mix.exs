@@ -25,7 +25,7 @@ defmodule RPCProtoGenHelpers.MixProject do
   # to properly read raw binary data from stdin without unicode translation errors.
   # See: https://github.com/elixir-protobuf/protobuf/blob/main/mix.exs
   defp emu_args do
-    if System.otp_release() in ["26", "27"] do
+    if System.otp_release() >= "26" do
       "-kernel standard_io_encoding latin1"
     else
       ""
@@ -43,7 +43,7 @@ defmodule RPCProtoGenHelpers.MixProject do
   defp deps do
     [
       {:recase, "~> 0.7.0"},
-      {:protobuf, "~> 0.14.0"}
+      {:protobuf, "~> 0.15.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
