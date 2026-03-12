@@ -121,7 +121,8 @@ defmodule RPCProtoGenHelpers.CLI do
           name: Recase.to_snake(method.name),
           request: extract_request(method),
           response: extract_response(method),
-          comments: comment_map[method_index]
+          comments: comment_map[method_index],
+          idempotent: idempotent?(method)
         }
       end)
 
@@ -199,6 +200,12 @@ defmodule RPCProtoGenHelpers.CLI do
       str |> String.trim() |> String.replace(~r|(\n +)|, "\n")
     end)
   end
+
+  defp idempotent?(%Google.Protobuf.MethodDescriptorProto{options: %Google.Protobuf.MethodOptions{idempotency_level: level}})
+       when level in [:IDEMPOTENT, :NO_SIDE_EFFECTS],
+       do: true
+
+  defp idempotent?(_), do: false
 
   # These will be like ".rpc.deals.v1alpha1.ApplyDealRequest"
   defp extract_request(%{input_type: "." <> req}), do: dotted_path_to_pascal(req)
