@@ -9,20 +9,26 @@ if idempotent_methods != [] do %>
   def idempotent_methods do
     MapSet.new([<%= Enum.map_join(idempotent_methods, ", ", fn m -> ":#{m.name}" end) %>])
   end
-<% end %><%= for %{name: function, request: request, response: response, comments: comments} <- methods do %>
-  <%= if comments do %>@impl true
+<% end %><% methods_with_docs = Enum.map(methods, fn method ->
+  doc_parts = []
+  doc_parts = if method.comments, do: doc_parts ++ [method.comments], else: doc_parts
+  retry_note = if method.idempotent, do: "Idempotent — retry auto-enabled. Disable with `retry: false`.", else: "No idempotency declared — retry requires explicit `retry: true`."
+  doc_parts = doc_parts ++ [retry_note]
+  Map.put(method, :doc_body, Enum.join(doc_parts, "\n\n"))
+end) %><%= for method <- methods_with_docs do %>
+  @impl true
   @doc """
-<%= indent(comments, 2) %>
-  """ <% else %>@impl true<% end %>
-  @spec <%= function %>(<%= request %>.t(), RpcClient.ClientBehaviour.call_options()) ::
-          {:ok, <%= response %>.t()} | {:error, GRPC.RPCError.t()}
-  def <%= function %>(request, opts \\ []) do
-    call(request, :<%= function %>, opts)
+<%= indent(method.doc_body, 2) %>
+  """
+  @spec <%= method.name %>(<%= method.request %>.t(), RpcClient.ClientBehaviour.call_options()) ::
+          {:ok, <%= method.response %>.t()} | {:error, GRPC.RPCError.t()}
+  def <%= method.name %>(request, opts \\ []) do
+    call(request, :<%= method.name %>, opts)
   end
 
   @impl true
-  @spec <%= function %>!(<%= request %>.t(), RpcClient.ClientBehaviour.call_options()) :: <%= response %>.t() | no_return()
-  def <%= function %>!(request, opts \\ []) do
-    call!(request, :<%= function %>, opts)
+  @spec <%= method.name %>!(<%= method.request %>.t(), RpcClient.ClientBehaviour.call_options()) :: <%= method.response %>.t() | no_return()
+  def <%= method.name %>!(request, opts \\ []) do
+    call!(request, :<%= method.name %>, opts)
   end
 <% end %>end
