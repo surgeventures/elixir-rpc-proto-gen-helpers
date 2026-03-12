@@ -14,14 +14,14 @@ if idempotent_methods != [] do %>
   @doc """
 <%= indent(comments, 2) %>
   """ <% else %>@impl true<% end %>
-  @spec <%= function %>(<%= request %>.t(), keyword()) ::
+  @spec <%= function %>(<%= request %>.t(), RpcClient.ClientBehaviour.call_options()) ::
           {:ok, <%= response %>.t()} | {:error, GRPC.RPCError.t()}
   def <%= function %>(request, opts \\ []) do
     call(request, :<%= function %>, opts)
   end
 
   @impl true
-  @spec <%= function %>!(<%= request %>.t(), keyword()) :: <%= response %>.t() | no_return()
+  @spec <%= function %>!(<%= request %>.t(), RpcClient.ClientBehaviour.call_options()) :: <%= response %>.t() | no_return()
   def <%= function %>!(request, opts \\ []) do
     call!(request, :<%= function %>, opts)
   end
